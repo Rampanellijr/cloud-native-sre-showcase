@@ -1,63 +1,46 @@
-# Cloud Native SRE Showcase 🚀
+# Cloud Native SRE & Infrastructure Showcase 🚀
 
-> **Production-Grade Infrastructure, Automation, and Observability Patterns.**
-
-This repository serves as a practical demonstration of Senior SRE & Solutions Architect capabilities. It implements a complete **GitOps-driven** workflow, **Infrastructure as Code (IaC)** governance, and **Reliability Engineering** principles (SRE) without relying on paid cloud resources for demonstration.
+This repository serves as a professional portfolio demonstrating **Senior Site Reliability Engineering (SRE)** and **Solutions Architecture** competencies. It implements a production-grade environment focusing on scalability, resilience, governance, and automated delivery.
 
 ---
 
-## 📚 Technical Competencies (Interview Questions Map)
+## 🏗️ Architecture Overview
 
-### 1. Kubernetes Resilience & Health
-* **Question:** How do you configure readiness and liveness probes?
-* **Answer:** See [`kubernetes/base/deployment.yaml`](./kubernetes/base/deployment.yaml).
-    * Implemented **Liveness Probes** to restart deadlocked containers.
-    * Implemented **Readiness Probes** to ensure zero-downtime deployments.
+The project follows a **GitOps** and **Infrastructure as Code (IaC)** philosophy, structured as a monorepo for better visibility and consistency across different layers:
 
-### 2. Disruption Management (PDB)
-* **Question:** What is a PodDisruptionBudget?
-* **Answer:** See [`kubernetes/base/deployment.yaml`](./kubernetes/base/deployment.yaml) (Line 75).
-    * Configured `minAvailable: 1` to ensure high availability during node drains or upgrades.
-
-### 3. Autoscaling (HPA) & FinOps
-* **Question:** How do you implement autoscaling?
-* **Answer:** See [`kubernetes/base/deployment.yaml`](./kubernetes/base/deployment.yaml) (Line 85).
-    * **HPA** configured on CPU utilization (75%) to handle traffic spikes efficiently.
-    * **Resource Limits** set to prevent "noisy neighbor" issues and control costs.
-
-### 4. Terraform Governance & State
-* **Question:** How do you structure Terraform and handle state?
-* **Answer:** See [`terraform/modules`](./terraform/modules) and [`terraform/environments/prod`](./terraform/environments/prod).
-    * **Modular Architecture:** Reusable modules enforce standard tagging and quotas.
-    * **State Isolation:** Environment separation (Dev/Prod) with (mocked) S3 Backend + DynamoDB Locking.
-
-### 5. GitOps & Drift Management
-* **Question:** How do you handle configuration drift?
-* **Answer:** See [`gitops/application.yaml`](./gitops/application.yaml).
-    * Uses **ArgoCD** with `selfHeal: true`. Any manual change (`kubectl edit`) is immediately overwritten by the state defined in Git.
-
-### 6. Incident Management
-* **Question:** Walk through a production incident you resolved.
-* **Answer:** See [`docs/incidents/2025-11-14-postgres-connection-pool.md`](./docs/incidents/).
-    * A structured **Post-Mortem** analyzing a Root Cause (Connection Exhaustion) and defining preventative Action Items.
-
-### 7. Observability as Code
-* **Question:** How do you design dashboards?
-* **Answer:** See [`docs/observability/dashboard-model.json`](./docs/observability/dashboard-model.json).
-    * Dashboards are versioned as JSON code, focusing on **Golden Signals** (Latency, Traffic, Errors, Saturation).
-
-### 8. Security (DevSecOps)
-* **Question:** How do you enforce least privilege and security scanning?
-* **Answer:** See [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml).
-    * **Shift-Left Security:** Automated **Checkov** scans in the CI pipeline block insecure Terraform code before it reaches production.
-    * **Context:** Kubernetes SecurityContext (`runAsNonRoot: true`) applied in deployment manifests.
+* **Infrastructure (Terraform):** Modularized setup for Kubernetes governance (Namespaces, ResourceQuotas, and NetworkPolicies).
+* **Workloads (Kubernetes):** High-availability deployments using Horizontal Pod Autoscaling (HPA), Pod Disruption Budgets (PDB), and Health Probes.
+* **Delivery (GitOps):** Continuous Deployment managed via ArgoCD patterns with automated drift correction.
+* **Automation (CI/CD):** GitHub Actions pipeline incorporating **DevSecOps** (Security Scans) and **Validation** (Ephemeral Kind Clusters).
 
 ---
 
-## 🛠️ How to Validate (Zero Cost)
+## 🛠️ Key SRE Features Implemented
 
-Prerequisites: `docker`, `kind`, `terraform`.
+### 1. Resilience & Reliability (Kubernetes)
+* **Self-Healing:** Configured `liveness` and `readiness` probes to ensure traffic only hits healthy containers and deadlocked apps are automatically recovered.
+* **Disruption Management:** Implemented `PodDisruptionBudget` to guarantee minimum service availability during maintenance or node upgrades.
+* **Zero-Downtime:** Utilized `RollingUpdate` strategy to ensure seamless version transitions.
 
-1. **Spin up a local cluster:**
-   ```bash
-   kind create cluster --name sre-showcase
+### 2. Governance & FinOps (Terraform)
+* **Hard Resource Quotas:** Applied `ResourceQuota` at the namespace level to prevent "noisy neighbors" and ensure predictable cloud spending.
+* **Environment Isolation:** Modular architecture allowing identical logic to be applied across `Dev`, `Staging`, and `Prod` with environment-specific overrides.
+
+### 3. DevSecOps (Security-First)
+* **Shift-Left Security:** Automated infrastructure scanning using **Checkov** to detect misconfigurations before they reach production.
+* **Principle of Least Privilege:** Containers configured with `securityContext` to run as non-root users.
+
+### 4. Incident Management & Observability
+* **Blameless Post-Mortems:** A structured incident report ([see docs](./docs/incidents/)) detailing Root Cause Analysis (RCA) and preventative action items.
+* **Observability as Code:** Dashboard definitions versioned as JSON, focusing on the **Four Golden Signals** (Latency, Traffic, Errors, and Saturation).
+
+---
+
+## 📁 Repository Structure
+
+```text
+├── .github/workflows/   # CI/CD: Security scans & validation
+├── terraform/           # IaC: Modules and Environment setup
+├── kubernetes/base/     # K8s: Deployment, Service, HPA, PDB
+├── gitops/              # GitOps: ArgoCD Application manifests
+└── docs/                # SRE: Incident reports & Dashboard models
