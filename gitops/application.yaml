@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: demo-app-prod
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    # -----------------------------------------------------------
+    # IMPORTANTE: Troque pelo SEU usuário do GitHub quando subir
+    # -----------------------------------------------------------
+    repoURL: 'https://github.com/SEU_USUARIO/cloud-native-sre-showcase.git'
+    targetRevision: HEAD
+    
+    # Aponta para onde está o seu manifesto Kubernetes (Deployment)
+    path: kubernetes/base 
+    
+  destination:
+    # O cluster onde o ArgoCD está rodando (in-cluster)
+    server: 'https://kubernetes.default.svc'
+    
+    # O namespace onde a aplicação vai rodar
+    namespace: default
+  
+  # ---------------------------------------------------------
+  # PERGUNTA DE ENTREVISTA: "Como você lida com Drift?"
+  # RESPOSTA: "Uso SyncPolicy Automated com SelfHeal."
+  # ---------------------------------------------------------
+  syncPolicy:
+    automated:
+      prune: true    # (Garbage Collection) Se deletar no Git, deleta no Cluster.
+      selfHeal: true # (Anti-Drift) Se mudar manual no Cluster, o Argo reverte.
+    syncOptions:
+      - CreateNamespace=true

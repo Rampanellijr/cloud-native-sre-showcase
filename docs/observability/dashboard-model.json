@@ -1,0 +1,39 @@
+{
+  "title": "Production: Golden Signals (USE Method)",
+  "tags": ["kubernetes", "sre", "latency", "saturation"],
+  "timezone": "browser",
+  "panels": [
+    {
+      "title": "Global Success Rate (SLO)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total{status!~'5..'}[5m])) / sum(rate(http_requests_total[5m])) * 100",
+          "legendFormat": "Availability %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 99.9 }
+            ]
+          },
+          "unit": "percent"
+        }
+      }
+    },
+    {
+      "title": "99th Percentile Latency",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m]) by (le))",
+          "legendFormat": "P99"
+        }
+      ]
+    }
+  ]
+}
